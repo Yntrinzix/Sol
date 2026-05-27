@@ -36,12 +36,12 @@ const RINGS: Record<string, { bands: { inner: number; outer: number; color: stri
 };
 
 const TEXTURE_MAP: Record<string, string> = {
-  mercury: '/nasa-assets/mercury/face_0.png',
-  venus: '/nasa-assets/venus/face_0.png',
-  earth: '/nasa-assets/earth/face_0.png',
-  mars: '/nasa-assets/mars/face_0.png',
-  jupiter: '/nasa-assets/jupiter/face_0.png',
-  saturn: '/nasa-assets/saturn/face_0.png',
+  mercury: '/textures/2k_mercury.jpg',
+  venus: '/textures/2k_venus_atmosphere.jpg',
+  earth: '/textures/2k_earth_daymap.jpg',
+  mars: '/textures/2k_mars.jpg',
+  jupiter: '/textures/2k_jupiter.jpg',
+  saturn: '/textures/2k_saturn.jpg',
   uranus: '/textures/2k_uranus.jpg',
   neptune: '/textures/2k_neptune.jpg',
 };
