@@ -4,11 +4,13 @@ import { BufferGeometry, Float32BufferAttribute, DoubleSide } from 'three';
 import type { Group } from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
-import { useTexture } from '@react-three/drei';
+import { useTexture, useGLTF } from '@react-three/drei';
 import type { Planet as PlanetData } from '../data/planets';
 import { scaleRadius } from '../physics/scale';
 import { useStore } from '../store';
 import { Tooltip } from '../ui/Tooltip';
+import { MOONS } from '../data/moons';
+import { createRingTexture } from './ringTexture';
 
 const RINGS: Record<string, { bands: { inner: number; outer: number; color: string; opacity: number }[]; tilt: number }> = {
   saturn: {
@@ -104,6 +106,14 @@ export const Planet = forwardRef<Object3D, { planet: PlanetData; geometry: Spher
         {/* Tooltip on hover */}
         {hovered && <Tooltip name={planet.name} position={[0, scale + 0.5, 0]} />}
 
+        {/* Earth cloud layer */}
+        {planet.id === 'earth' && <CloudLayer radius={scale} />}
+
+        {/* Moons */}
+        {MOONS.filter(m => m.parentId === planet.id).map(moon => (
+          <MoonMesh key={moon.id} moon={moon} />
+        ))}
+
         {/* Rings - LOD: flat discs when far, particles when close */}
         {ring && <RingLOD bands={ring.bands} tilt={ring.tilt} planetRadius={scale} planetId={planet.id} />}
       </group>
@@ -141,20 +151,22 @@ function RingLOD({ bands, tilt, planetRadius, planetId }: { bands: typeof RINGS[
 }
 
 function RingDiscs({ bands, tilt, planetRadius }: { bands: typeof RINGS['saturn']['bands']; tilt: number; planetRadius: number }) {
+  const ringTexture = useMemo(() => createRingTexture(), []);
+  const innerR = planetRadius * bands[0].inner;
+  const outerR = planetRadius * bands[bands.length - 1].outer;
+
   return (
     <group rotation={[tilt * Math.PI / 180, 0, 0]}>
-      {bands.map((band, i) => (
-        <mesh key={i}>
-          <ringGeometry args={[planetRadius * band.inner, planetRadius * band.outer, 64]} />
-          <meshStandardMaterial
-            color={band.color}
-            side={DoubleSide}
-            transparent
-            opacity={band.opacity * 0.5}
-            roughness={0.9}
-          />
-        </mesh>
-      ))}
+      <mesh castShadow receiveShadow>
+        <ringGeometry args={[innerR, outerR, 128, 1]} />
+        <meshStandardMaterial
+          map={ringTexture}
+          side={DoubleSide}
+          transparent
+          alphaTest={0.01}
+          roughness={0.8}
+        />
+      </mesh>
     </group>
   );
 }
@@ -257,4 +269,76 @@ function RingParticles({ bands, tilt, planetRadius }: { bands: typeof RINGS['sat
 function TexturedMaterial({ path }: { path: string }) {
   const texture = useTexture(path);
   return <meshStandardMaterial map={texture} roughness={0.9} metalness={0.05} />;
+}
+
+function CloudLayer({ radius }: { radius: number }) {
+  const cloudTexture = useTexture('/textures/2k_earth_clouds.jpg');
+  const ref = useRef<Object3D>(null!);
+
+  useFrame((_, delta) => {
+    if (ref.current) ref.current.rotation.y += delta * 0.02;
+  });
+
+  const s = radius * 1.01;
+  return (
+    <mesh ref={ref} scale={[s, s, s]} rotation={[Math.PI / 2, 0, 0]}>
+      <sphereGeometry args={[1, 32, 32]} />
+      <meshStandardMaterial map={cloudTexture} transparent opacity={0.4} depthWrite={false} />
+    </mesh>
+  );
+}
+
+function MoonMesh({ moon }: { moon: typeof MOONS[number] }) {
+  const ref = useRef<Object3D>(null!);
+  const trueScale = useStore((s) => s.trueScale);
+
+  const moonRadius = trueScale
+    ? moon.radius / 6371 * 0.006
+    : Math.max(moon.radius / 6371 * 0.3, 0.05);
+
+  const orbitDist = trueScale
+    ? moon.orbitRadius / 149597870 * 100
+    : Math.max(moon.orbitRadius / moon.orbitRadius * 1.5, 0.8);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const { timeSpeed, isPlaying } = useStore.getState();
+    const t = isPlaying ? clock.elapsedTime * timeSpeed : 0;
+    const period = Math.abs(moon.orbitalPeriod) * 86400;
+    const angle = (t * 86400 / period) * Math.PI * 2 * Math.sign(moon.orbitalPeriod);
+    ref.current.position.x = Math.cos(angle) * orbitDist;
+    ref.current.position.y = Math.sin(angle) * orbitDist;
+    ref.current.position.z = 0;
+  });
+
+  if (moon.model) {
+    return (
+      <group ref={ref} scale={[moonRadius * 0.1, moonRadius * 0.1, moonRadius * 0.1]}>
+        <MoonModel path={moon.model} />
+      </group>
+    );
+  }
+
+  return (
+    <mesh ref={ref}>
+      {moon.irregular
+        ? <icosahedronGeometry args={[moonRadius, 0]} />
+        : <sphereGeometry args={[moonRadius, 16, 16]} />
+      }
+      {moon.texture
+        ? <MoonTextureMaterial path={moon.texture} />
+        : <meshStandardMaterial color={moon.color} roughness={0.9} />
+      }
+    </mesh>
+  );
+}
+
+function MoonModel({ path }: { path: string }) {
+  const { scene } = useGLTF(path);
+  return <primitive object={scene} />;
+}
+
+function MoonTextureMaterial({ path }: { path: string }) {
+  const texture = useTexture(path);
+  return <meshStandardMaterial map={texture} roughness={0.9} />;
 }

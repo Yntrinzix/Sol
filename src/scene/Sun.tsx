@@ -31,23 +31,27 @@ const SunSurfaceMaterial = shaderMaterial(
    }
    float fbm(vec2 p) {
      float v = 0.0; float a = 0.5;
-     for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
+     for (int i = 0; i < 6; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
      return v;
    }
 
    void main() {
-     float t = uTime * 0.1;
-     float n = fbm(vUv * 6.0 + t) * 0.5 + fbm(vUv * 10.0 - t * 0.7) * 0.3 + fbm(vUv * 15.0 + t * 0.3) * 0.2;
+     float t = uTime * 0.08;
+     vec2 uv = vUv;
 
-     // Bright color ramp - everything is HIGH intensity so Bloom picks it up
-     vec3 dark = vec3(0.8, 0.2, 0.0);
-     vec3 mid = vec3(1.0, 0.5, 0.0);
-     vec3 hot = vec3(1.0, 0.9, 0.4);
+     // Smooth turbulent plasma
+     float turb = fbm(uv * 3.0 + t) * 0.4 + fbm(uv * 6.0 - t * 0.5) * 0.35 + fbm(uv * 9.0 + t * 0.2) * 0.25;
 
-     vec3 color = n < 0.4 ? mix(dark, mid, n / 0.4) : mix(mid, hot, (n - 0.4) / 0.6);
+     float intensity = turb;
 
-     // Keep it bright (above bloom threshold)
-     gl_FragColor = vec4(color * 1.8, 1.0);
+     // Color ramp: smooth orange to yellow
+     vec3 orange = vec3(1.0, 0.65, 0.1);
+     vec3 yellow = vec3(1.0, 0.9, 0.4);
+
+     vec3 color = mix(orange, yellow, intensity);
+
+     // Bright enough for bloom
+     gl_FragColor = vec4(color * 2.0, 1.0);
    }`
 );
 

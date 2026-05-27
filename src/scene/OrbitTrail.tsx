@@ -20,5 +20,5 @@ export function OrbitTrail({ planet }: Props) {
     });
   }, [planet, trueScale]);
 
-  return <Line points={points} color={planet.color} lineWidth={0.5} opacity={0.3} transparent renderOrder={-1} />;
+  return <Line points={points} color={planet.color} lineWidth={0.5} opacity={0.12} transparent renderOrder={-1} />;
 }

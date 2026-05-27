@@ -25,7 +25,7 @@ export default function App() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#000', overflow: 'hidden', boxSizing: 'border-box' }}>
-      <Canvas shadows camera={{ position: [2, -150, 30], fov: 50, near: 0.001, far: 20000 }} dpr={[1, 2]}>
+      <Canvas shadows camera={{ position: [2, -150, 30], fov: 50, near: 0.001, far: 20000, up: [0, 0, 1] }} dpr={[1, 2]}>
         <AdaptiveDpr pixelated />
         <Suspense fallback={null}>
           <SolarSystem />

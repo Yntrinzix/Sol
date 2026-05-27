@@ -60,8 +60,8 @@ export function CameraRig() {
           const [x, y, z] = scalePosition(raw);
           const planetPos = new Vector3(x, y, z);
           const radius = scaleRadius(planet.radius);
-          const dist = radius * 3; // close enough to fill the view
-          animTo.current.copy(planetPos.clone().add(new Vector3(dist * 0.3, -dist * 0.5, dist)));
+          const dist = radius * 3;
+          animTo.current.copy(planetPos.clone().add(new Vector3(dist, dist * 0.3, dist * 0.5)));
           targetTo.current.copy(planetPos);
         }
       } else {
