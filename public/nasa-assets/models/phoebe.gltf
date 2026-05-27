@@ -1,0 +1,144 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v0.9.36",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Phoebe",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "name" : "Phoebe",
+            "normalTexture" : {
+                "index" : 0,
+                "texCoord" : 0
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.800000011920929
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "retopo.001",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "source" : 0
+        },
+        {
+            "source" : 1
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "phoebe_norm",
+            "uri" : "phoebe_norm.png"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "phoebe_diff",
+            "uri" : "phoebe_diff.jpg"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 598,
+            "max" : [
+                111696.03125,
+                105170.0234375,
+                97707.359375
+            ],
+            "min" : [
+                -104590.140625,
+                -106403.5859375,
+                -98041.53125
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 598,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 598,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 3408,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 7176,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 7176,
+            "byteOffset" : 7176
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 4784,
+            "byteOffset" : 14352
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 6816,
+            "byteOffset" : 19136
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 25952,
+            "uri" : "phoebe.bin"
+        }
+    ]
+}

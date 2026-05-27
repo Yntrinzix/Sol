@@ -1,0 +1,126 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v0.9.36",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Hyperion"
+        }
+    ],
+    "materials" : [
+        {
+            "name" : "Material",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 0,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.800000011920929
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Sphere.028",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "source" : 0
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Hyperion",
+            "uri" : "Hyperion.jpg"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 8239,
+            "max" : [
+                138.1806182861328,
+                194.62469482421875,
+                124.90933227539062
+            ],
+            "min" : [
+                -136.81939697265625,
+                -196.1974334716797,
+                -125.09065246582031
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 8239,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 8239,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 47616,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 98868,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 98868,
+            "byteOffset" : 98868
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 65912,
+            "byteOffset" : 197736
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 95232,
+            "byteOffset" : 263648
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 358880,
+            "uri" : "hyperion.bin"
+        }
+    ]
+}
