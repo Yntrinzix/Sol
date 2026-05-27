@@ -29,6 +29,8 @@ export const MOONS: Moon[] = [
   { id: 'titan', name: 'Titan', parentId: 'saturn', radius: 2575, orbitRadius: 1221870, orbitalPeriod: 15.945, color: '#cc9944' },
   { id: 'enceladus', name: 'Enceladus', parentId: 'saturn', radius: 252, orbitRadius: 238042, orbitalPeriod: 1.370, color: '#ffffff' },
   { id: 'mimas', name: 'Mimas', parentId: 'saturn', radius: 198, orbitRadius: 185539, orbitalPeriod: 0.942, color: '#cccccc', irregular: true, model: '/nasa-assets/models/mimas.gltf' },
+  { id: 'hyperion', name: 'Hyperion', parentId: 'saturn', radius: 135, orbitRadius: 1481009, orbitalPeriod: 21.277, color: '#aa9977', irregular: true, model: '/nasa-assets/models/hyperion.gltf' },
+  { id: 'phoebe', name: 'Phoebe', parentId: 'saturn', radius: 106, orbitRadius: 12947780, orbitalPeriod: -550.31, color: '#666655', irregular: true, model: '/nasa-assets/models/phoebe.gltf' },
 
   // Uranus
   { id: 'titania', name: 'Titania', parentId: 'uranus', radius: 789, orbitRadius: 436300, orbitalPeriod: 8.706, color: '#aabbcc' },

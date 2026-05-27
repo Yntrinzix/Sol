@@ -10,7 +10,6 @@ import { TimeControls } from './ui/TimeControls';
 import { Subtitles } from './ui/Subtitles';
 import { CameraControls } from './ui/CameraControls';
 import { PlanetList } from './ui/PlanetList';
-import { ScaleToggle } from './ui/ScaleToggle';
 import { useAudio } from './hooks/useAudio';
 import { useStore } from './store';
 
@@ -41,7 +40,6 @@ export default function App() {
         </EffectComposer>
       </Canvas>
       <PlanetList />
-      <ScaleToggle />
       <HomeButton />
       <InfoPanel />
       <Subtitles />

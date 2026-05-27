@@ -5,12 +5,10 @@ interface SolState {
   isPlaying: boolean;
   selectedPlanet: string | null;
   viewMode: 'orbit' | 'exploded';
-  trueScale: boolean;
   setTimeSpeed: (speed: number) => void;
   selectPlanet: (id: string | null) => void;
   togglePlay: () => void;
   setViewMode: (mode: 'orbit' | 'exploded') => void;
-  toggleScale: () => void;
 }
 
 export const useStore = create<SolState>((set) => ({
@@ -18,10 +16,8 @@ export const useStore = create<SolState>((set) => ({
   isPlaying: true,
   selectedPlanet: null,
   viewMode: 'orbit',
-  trueScale: false,
   setTimeSpeed: (speed) => set({ timeSpeed: speed }),
   selectPlanet: (id) => set({ selectedPlanet: id, viewMode: 'orbit' }),
   togglePlay: () => set((s) => ({ isPlaying: !s.isPlaying })),
   setViewMode: (mode) => set({ viewMode: mode }),
-  toggleScale: () => set((s) => ({ trueScale: !s.trueScale })),
 }));

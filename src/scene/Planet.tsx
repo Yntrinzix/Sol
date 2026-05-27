@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useCallback, useState, useMemo } from 'react';
+import { forwardRef, useRef, useCallback, useState } from 'react';
 import type { Object3D, SphereGeometry } from 'three';
-import { BufferGeometry, Float32BufferAttribute, DoubleSide } from 'three';
-import type { Group } from 'three';
+import { DoubleSide } from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { useTexture, useGLTF } from '@react-three/drei';
@@ -16,13 +15,13 @@ const RINGS: Record<string, { bands: { inner: number; outer: number; color: stri
   saturn: {
     tilt: 26.7,
     bands: [
-      { inner: 1.11, outer: 1.24, color: '#8b7d6b', opacity: 0.3 },  // D ring (faint)
-      { inner: 1.24, outer: 1.53, color: '#a89880', opacity: 0.6 },  // C ring
-      { inner: 1.53, outer: 1.95, color: '#d4c4a8', opacity: 0.9 },  // B ring (brightest)
-      { inner: 2.03, outer: 2.27, color: '#c8b898', opacity: 0.8 },  // A ring
-      { inner: 2.33, outer: 2.34, color: '#b0a090', opacity: 0.5 },  // F ring (narrow)
-      { inner: 2.72, outer: 2.85, color: '#706050', opacity: 0.2 },  // G ring (faint)
-      { inner: 3.0, outer: 4.0, color: '#504030', opacity: 0.08 },   // E ring (very faint, wide)
+      { inner: 1.11, outer: 1.24, color: '#8b7d6b', opacity: 0.3 },
+      { inner: 1.24, outer: 1.53, color: '#a89880', opacity: 0.6 },
+      { inner: 1.53, outer: 1.95, color: '#d4c4a8', opacity: 0.9 },
+      { inner: 2.03, outer: 2.27, color: '#c8b898', opacity: 0.8 },
+      { inner: 2.33, outer: 2.34, color: '#b0a090', opacity: 0.5 },
+      { inner: 2.72, outer: 2.85, color: '#706050', opacity: 0.2 },
+      { inner: 3.0, outer: 4.0, color: '#504030', opacity: 0.08 },
     ],
   },
   uranus: {
@@ -88,7 +87,6 @@ export const Planet = forwardRef<Object3D, { planet: PlanetData; geometry: Spher
 
     return (
       <group ref={ref} name={planet.id}>
-        {/* Planet mesh - true scale */}
         <mesh
           geometry={geometry}
           scale={[scale, scale, scale]}
@@ -103,52 +101,21 @@ export const Planet = forwardRef<Object3D, { planet: PlanetData; geometry: Spher
           {texturePath ? <TexturedMaterial path={texturePath} /> : <meshStandardMaterial color={planet.color} />}
         </mesh>
 
-        {/* Tooltip on hover */}
         {hovered && <Tooltip name={planet.name} position={[0, scale + 0.5, 0]} />}
 
-        {/* Earth cloud layer */}
         {planet.id === 'earth' && <CloudLayer radius={scale} />}
 
-        {/* Moons */}
         {MOONS.filter(m => m.parentId === planet.id).map(moon => (
           <MoonMesh key={moon.id} moon={moon} />
         ))}
 
-        {/* Rings - LOD: flat discs when far, particles when close */}
-        {ring && <RingLOD bands={ring.bands} tilt={ring.tilt} planetRadius={scale} planetId={planet.id} />}
+        {ring && <RingDiscs bands={ring.bands} tilt={ring.tilt} planetRadius={scale} />}
       </group>
     );
   },
 );
 
 Planet.displayName = 'Planet';
-
-function RingLOD({ bands, tilt, planetRadius, planetId }: { bands: typeof RINGS['saturn']['bands']; tilt: number; planetRadius: number; planetId: string }) {
-  const close = useRef(false);
-  const discsRef = useRef<Group>(null);
-  const particlesRef = useRef<Group>(null);
-
-  useFrame(({ camera }) => {
-    const planet = camera.parent?.parent?.getObjectByName?.(planetId);
-    const shouldBeClose = planet
-      ? camera.position.distanceTo(planet.position) < planetRadius * 15
-      : useStore.getState().selectedPlanet === planetId;
-    close.current = shouldBeClose;
-    if (discsRef.current) discsRef.current.visible = !shouldBeClose;
-    if (particlesRef.current) particlesRef.current.visible = shouldBeClose;
-  });
-
-  return (
-    <>
-      <group ref={discsRef}>
-        <RingDiscs bands={bands} tilt={tilt} planetRadius={planetRadius} />
-      </group>
-      <group ref={particlesRef} visible={false}>
-        <RingParticles bands={bands} tilt={tilt} planetRadius={planetRadius} />
-      </group>
-    </>
-  );
-}
 
 function RingDiscs({ bands, tilt, planetRadius }: { bands: typeof RINGS['saturn']['bands']; tilt: number; planetRadius: number }) {
   const ringTexture = useTexture('/nasa-assets/rings/saturn_rings_top.png');
@@ -167,101 +134,6 @@ function RingDiscs({ bands, tilt, planetRadius }: { bands: typeof RINGS['saturn'
           roughness={0.8}
         />
       </mesh>
-    </group>
-  );
-}
-
-function RingParticles({ bands, tilt, planetRadius }: { bands: typeof RINGS['saturn']['bands']; tilt: number; planetRadius: number }) {
-  const trueScale = useStore((s) => s.trueScale);
-  const pointSize = trueScale ? 0.0005 : 0.008;
-  const totalCount = trueScale ? 2_000_000 : 500_000;
-  const groupRef = useRef<Group>(null);
-
-  useFrame((_, delta) => {
-    if (groupRef.current) groupRef.current.rotation.z += 0.05 * delta;
-  });
-  const geometry = useMemo(() => {
-    // Total particles - Saturn's rings are DENSE (billions of ice chunks)
-    const positions = new Float32Array(totalCount * 3);
-    let idx = 0;
-
-    // Calculate total area for proportional distribution
-    const areas = bands.map(b => (b.outer * b.outer - b.inner * b.inner));
-    const totalArea = areas.reduce((a, b) => a + b, 0);
-
-    for (let bandIdx = 0; bandIdx < bands.length; bandIdx++) {
-      const band = bands[bandIdx];
-      const bandCount = Math.floor(totalCount * (areas[bandIdx] / totalArea) * band.opacity);
-      const innerR = planetRadius * band.inner;
-      const outerR = planetRadius * band.outer;
-
-      for (let i = 0; i < bandCount && idx < totalCount; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = innerR + Math.random() * (outerR - innerR);
-        const i3 = idx * 3;
-        positions[i3] = Math.cos(angle) * r;
-        positions[i3 + 1] = Math.sin(angle) * r;
-        // Outer bands get more vertical scatter (less solid, more diffuse)
-        const scatterFactor = bandIdx / bands.length; // 0 for inner, ~1 for outer
-        positions[i3 + 2] = (Math.random() - 0.5) * planetRadius * (0.002 + scatterFactor * 0.03);
-        idx++;
-      }
-    }
-
-    const geo = new BufferGeometry();
-    geo.setAttribute('position', new Float32BufferAttribute(positions.slice(0, idx * 3), 3));
-    return geo;
-  }, [bands, planetRadius, totalCount]);
-
-  const tiltRad = tilt * Math.PI / 180;
-
-  return (
-    <group rotation={[tiltRad, 0, 0]}>
-      <group ref={groupRef}>
-        <points geometry={geometry}>
-        <shaderMaterial
-          transparent
-          depthWrite={false}
-          uniforms={{ uSize: { value: pointSize }, uOpacity: { value: 0.9 }, uPlanetRadius: { value: planetRadius } }}
-          vertexShader={`
-            uniform float uSize;
-            uniform float uPlanetRadius;
-            varying float vLight;
-            void main() {
-              vec4 worldPos = modelMatrix * vec4(position, 1.0);
-              vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-              gl_PointSize = uSize * (300.0 / -mvPos.z);
-              gl_Position = projectionMatrix * mvPos;
-
-              // Sun direction (sun at origin, planet group is at planet position)
-              vec3 toSun = normalize(-worldPos.xyz);
-
-              // Basic ring normal (flat disc)
-              vec3 normal = vec3(0.0, 0.0, 1.0);
-              vLight = max(dot(normal, toSun), 0.0);
-
-              // Shadow from planet body: check if this particle is behind the planet
-              // Project particle position onto sun direction, check if within planet cylinder
-              vec3 localPos = position; // position relative to planet center
-              float distFromAxis = length(localPos.xy); // distance from planet center in ring plane
-              // If particle is on the dark side AND within planet's shadow cylinder
-              float behindPlanet = dot(normalize(localPos), -toSun);
-              if (behindPlanet > 0.7 && distFromAxis < uPlanetRadius * 1.1) {
-                vLight *= 0.05; // deep shadow
-              }
-            }
-          `}
-          fragmentShader={`
-            uniform float uOpacity;
-            varying float vLight;
-            void main() {
-              vec3 color = vec3(0.83, 0.76, 0.65) * (0.15 + 0.85 * vLight);
-              gl_FragColor = vec4(color, uOpacity * (0.2 + 0.8 * vLight));
-            }
-          `}
-        />
-      </points>
-      </group>
     </group>
   );
 }
@@ -290,15 +162,9 @@ function CloudLayer({ radius }: { radius: number }) {
 
 function MoonMesh({ moon }: { moon: typeof MOONS[number] }) {
   const ref = useRef<Object3D>(null!);
-  const trueScale = useStore((s) => s.trueScale);
 
-  const moonRadius = trueScale
-    ? moon.radius / 6371 * 0.006
-    : Math.max(moon.radius / 6371 * 0.3, 0.05);
-
-  const orbitDist = trueScale
-    ? moon.orbitRadius / 149597870 * 100
-    : Math.max(moon.orbitRadius / moon.orbitRadius * 1.5, 0.8);
+  const moonRadius = moon.radius / 6371 * 0.006;
+  const orbitDist = moon.orbitRadius / 149597870 * 100;
 
   useFrame(({ clock }) => {
     if (!ref.current) return;

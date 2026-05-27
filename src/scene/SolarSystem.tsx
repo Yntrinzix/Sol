@@ -7,7 +7,6 @@ import { Sun } from './Sun';
 import { Planet } from './Planet';
 import { OrbitTrail } from './OrbitTrail';
 import { Lighting } from './Lighting';
-import { AsteroidBelt } from './AsteroidBelt';
 import { ExplodedView } from './ExplodedView';
 
 export function SolarSystem() {
@@ -20,7 +19,6 @@ export function SolarSystem() {
     <>
       <Lighting />
       <Sun />
-      <AsteroidBelt />
       <ExplodedView />
       {PLANETS.filter((p) => p.type !== 'star').map((planet) => {
         const refIndex = PLANETS.indexOf(planet);
