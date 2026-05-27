@@ -10,7 +10,7 @@ import { scaleRadius } from '../physics/scale';
 import { useStore } from '../store';
 import { Tooltip } from '../ui/Tooltip';
 import { MOONS } from '../data/moons';
-import { createRingTexture } from './ringTexture';
+
 
 const RINGS: Record<string, { bands: { inner: number; outer: number; color: string; opacity: number }[]; tilt: number }> = {
   saturn: {
@@ -36,12 +36,12 @@ const RINGS: Record<string, { bands: { inner: number; outer: number; color: stri
 };
 
 const TEXTURE_MAP: Record<string, string> = {
-  mercury: '/textures/2k_mercury.jpg',
-  venus: '/textures/2k_venus_atmosphere.jpg',
-  earth: '/textures/2k_earth_daymap.jpg',
-  mars: '/textures/2k_mars.jpg',
-  jupiter: '/textures/2k_jupiter.jpg',
-  saturn: '/textures/2k_saturn.jpg',
+  mercury: '/nasa-assets/mercury/face_0.png',
+  venus: '/nasa-assets/venus/face_0.png',
+  earth: '/nasa-assets/earth/face_0.png',
+  mars: '/nasa-assets/mars/face_0.png',
+  jupiter: '/nasa-assets/jupiter/face_0.png',
+  saturn: '/nasa-assets/saturn/face_0.png',
   uranus: '/textures/2k_uranus.jpg',
   neptune: '/textures/2k_neptune.jpg',
 };
@@ -151,7 +151,7 @@ function RingLOD({ bands, tilt, planetRadius, planetId }: { bands: typeof RINGS[
 }
 
 function RingDiscs({ bands, tilt, planetRadius }: { bands: typeof RINGS['saturn']['bands']; tilt: number; planetRadius: number }) {
-  const ringTexture = useMemo(() => createRingTexture(), []);
+  const ringTexture = useTexture('/nasa-assets/rings/saturn_rings_top.png');
   const innerR = planetRadius * bands[0].inner;
   const outerR = planetRadius * bands[bands.length - 1].outer;
 
