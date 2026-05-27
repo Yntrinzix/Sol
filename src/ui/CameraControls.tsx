@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function CameraControls() {
-  const [debug, setDebug] = useState('');
+  const debugRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const el = document.getElementById('camera-debug-data');
-      if (el) setDebug(el.textContent || '');
+      if (el && debugRef.current) debugRef.current.textContent = el.textContent || '';
     }, 100);
     return () => clearInterval(interval);
   }, []);
@@ -32,7 +32,7 @@ export function CameraControls() {
         <div>🖱️ Scroll — Zoom</div>
         <div style={{ marginTop: 4, opacity: 0.7 }}>Touch: 1-finger rotate, 2-finger zoom/pan</div>
       </div>
-      <div style={{
+      <div ref={debugRef} style={{
         position: 'fixed',
         top: 16,
         left: 16,
@@ -44,9 +44,7 @@ export function CameraControls() {
         fontFamily: 'monospace',
         pointerEvents: 'none',
         userSelect: 'none',
-      }}>
-        {debug}
-      </div>
+      }} />
     </>
   );
 }

@@ -6,14 +6,13 @@ import type { Planet } from '../data/planets';
  * using Newton-Raphson iteration.
  */
 export function solveKepler(meanAnomaly: number, eccentricity: number): number {
-  let E = meanAnomaly; // initial guess
-  for (let i = 0; i < 10; i++) {
+  const iterate = (E: number, i: number): number => {
+    if (i >= 10) return E;
     const dE = (E - eccentricity * Math.sin(E) - meanAnomaly) /
                (1 - eccentricity * Math.cos(E));
-    E -= dE;
-    if (Math.abs(dE) < 1e-8) break;
-  }
-  return E;
+    return Math.abs(dE) < 1e-8 ? E - dE : iterate(E - dE, i + 1);
+  };
+  return iterate(meanAnomaly, 0);
 }
 
 /**

@@ -9,7 +9,6 @@ export function HomeButton() {
     <button
       onClick={() => {
         useStore.getState().selectPlanet(null);
-        useStore.getState().setCameraTarget(null);
       }}
       style={{
         position: 'fixed',

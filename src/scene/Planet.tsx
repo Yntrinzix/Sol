@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useCallback, useState, useMemo } from 'react';
 import type { Object3D, SphereGeometry } from 'three';
-import { BufferGeometry, Float32BufferAttribute, DoubleSide, Group } from 'three';
+import { BufferGeometry, Float32BufferAttribute, DoubleSide } from 'three';
+import type { Group } from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
@@ -101,7 +102,7 @@ export const Planet = forwardRef<Object3D, { planet: PlanetData; geometry: Spher
         </mesh>
 
         {/* Tooltip on hover */}
-        {hovered && <Tooltip name={planet.name} visible={hovered} position={[0, scale + 0.5, 0]} />}
+        {hovered && <Tooltip name={planet.name} position={[0, scale + 0.5, 0]} />}
 
         {/* Rings - LOD: flat discs when far, particles when close */}
         {ring && <RingLOD bands={ring.bands} tilt={ring.tilt} planetRadius={scale} planetId={planet.id} />}
@@ -113,28 +114,31 @@ export const Planet = forwardRef<Object3D, { planet: PlanetData; geometry: Spher
 Planet.displayName = 'Planet';
 
 function RingLOD({ bands, tilt, planetRadius, planetId }: { bands: typeof RINGS['saturn']['bands']; tilt: number; planetRadius: number; planetId: string }) {
-  const [close, setClose] = useState(false);
+  const close = useRef(false);
+  const discsRef = useRef<Group>(null);
+  const particlesRef = useRef<Group>(null);
 
   useFrame(({ camera }) => {
     const planet = camera.parent?.parent?.getObjectByName?.(planetId);
-    if (!planet) {
-      // Fallback: use selected state
-      const isSelected = useStore.getState().selectedPlanet === planetId;
-      if (isSelected !== close) setClose(isSelected);
-      return;
-    }
-    const dist = camera.position.distanceTo(planet.position);
-    const threshold = planetRadius * 15;
-    const shouldBeClose = dist < threshold;
-    if (shouldBeClose !== close) setClose(shouldBeClose);
+    const shouldBeClose = planet
+      ? camera.position.distanceTo(planet.position) < planetRadius * 15
+      : useStore.getState().selectedPlanet === planetId;
+    close.current = shouldBeClose;
+    if (discsRef.current) discsRef.current.visible = !shouldBeClose;
+    if (particlesRef.current) particlesRef.current.visible = shouldBeClose;
   });
 
-  return close
-    ? <RingParticles bands={bands} tilt={tilt} planetRadius={planetRadius} />
-    : <RingDiscs bands={bands} tilt={tilt} planetRadius={planetRadius} />;
+  return (
+    <>
+      <group ref={discsRef}>
+        <RingDiscs bands={bands} tilt={tilt} planetRadius={planetRadius} />
+      </group>
+      <group ref={particlesRef} visible={false}>
+        <RingParticles bands={bands} tilt={tilt} planetRadius={planetRadius} />
+      </group>
+    </>
+  );
 }
-
-Planet.displayName = 'Planet';
 
 function RingDiscs({ bands, tilt, planetRadius }: { bands: typeof RINGS['saturn']['bands']; tilt: number; planetRadius: number }) {
   return (
@@ -154,8 +158,6 @@ function RingDiscs({ bands, tilt, planetRadius }: { bands: typeof RINGS['saturn'
     </group>
   );
 }
-
-Planet.displayName = 'Planet';
 
 function RingParticles({ bands, tilt, planetRadius }: { bands: typeof RINGS['saturn']['bands']; tilt: number; planetRadius: number }) {
   const trueScale = useStore((s) => s.trueScale);
@@ -197,7 +199,7 @@ function RingParticles({ bands, tilt, planetRadius }: { bands: typeof RINGS['sat
     const geo = new BufferGeometry();
     geo.setAttribute('position', new Float32BufferAttribute(positions.slice(0, idx * 3), 3));
     return geo;
-  }, [bands, planetRadius]);
+  }, [bands, planetRadius, totalCount]);
 
   const tiltRad = tilt * Math.PI / 180;
 

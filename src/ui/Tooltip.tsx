@@ -3,13 +3,10 @@ import type { Vector3Tuple } from 'three';
 
 interface Props {
   name: string;
-  visible: boolean;
   position: Vector3Tuple;
 }
 
-export function Tooltip({ name, visible, position }: Props) {
-  if (!visible) return null;
-
+export function Tooltip({ name, position }: Props) {
   return (
     <Html center distanceFactor={10} position={position} style={{ pointerEvents: 'none' }}>
       <div

@@ -53,10 +53,10 @@ function ExplodedLayers({ planetId, layers, planetRadius }: LayersProps) {
 
     if (!groupRef.current) return;
     const children = groupRef.current.children;
-    for (let i = 0; i < children.length; i++) {
+    children.forEach((child, i) => {
       const targetY = i * SEPARATION * progressRef.current;
-      children[i].position.y = targetY;
-    }
+      child.position.y = targetY;
+    });
   });
 
   return (

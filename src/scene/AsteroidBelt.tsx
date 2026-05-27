@@ -14,7 +14,7 @@ export function AsteroidBelt() {
 
 function AsteroidBeltInner() {
   const groupRef = useRef<Group>(null);
-  const trueScale = useStore.getState().trueScale;
+  const trueScale = useStore((s) => s.trueScale);
   const count = trueScale ? 1_000_000 : 2_000;
 
   const geometry = useMemo(() => {
@@ -42,7 +42,7 @@ function AsteroidBeltInner() {
     geo.setAttribute('position', new Float32BufferAttribute(positions, 3));
     geo.setAttribute('size', new Float32BufferAttribute(sizes, 1));
     return geo;
-  }, []);
+  }, [count]);
 
   useFrame((_, delta) => {
     if (groupRef.current) groupRef.current.rotation.z += 0.002 * delta;

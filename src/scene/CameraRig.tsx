@@ -11,7 +11,6 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
 const OVERVIEW_POS = new Vector3(2, -150, 30);
 const OVERVIEW_TARGET = new Vector3(0, 0, 0);
-let frameCount = 0;
 
 export function CameraRig() {
   const controlsRef = useRef<OrbitControlsImpl>(null!);
@@ -23,6 +22,7 @@ export function CameraRig() {
   const animTo = useRef(new Vector3());
   const targetFrom = useRef(new Vector3());
   const targetTo = useRef(new Vector3());
+  const frameCount = useRef(0);
 
   useFrame(({ camera }, delta) => {
     const { selectedPlanet, timeSpeed, isPlaying } = useStore.getState();
@@ -32,8 +32,8 @@ export function CameraRig() {
     }
 
     // Debug output
-    frameCount++;
-    if (frameCount % 6 === 0) {
+    frameCount.current++;
+    if (frameCount.current % 6 === 0) {
       const el = document.getElementById('camera-debug-data');
       if (el) {
         const p = camera.position;

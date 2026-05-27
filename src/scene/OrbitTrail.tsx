@@ -14,13 +14,10 @@ export function OrbitTrail({ planet }: Props) {
 
   const points = useMemo(() => {
     const periodSeconds = planet.orbitalPeriod * 86400;
-    const pts: [number, number, number][] = [];
-    for (let i = 0; i <= 100; i++) {
+    return Array.from({ length: 101 }, (_, i) => {
       const t = (i / 100) * periodSeconds;
-      const pos = getOrbitalPosition(planet, t);
-      pts.push(scalePosition(pos));
-    }
-    return pts;
+      return scalePosition(getOrbitalPosition(planet, t));
+    });
   }, [planet, trueScale]);
 
   return <Line points={points} color={planet.color} lineWidth={0.5} opacity={0.3} transparent renderOrder={-1} />;
